@@ -1,21 +1,26 @@
 # Specimen inventory
 
-A simple Streamlit dashboard for `data/example.csv`, with total and per-type
+A simple R Shiny dashboard for `data/example.csv`, with total and per-type
 specimen counts, collection-date bins, and chart filters.
 
 ## Run locally
 
-With [uv](https://docs.astral.sh/uv/) installed, run from the repository root:
+In an R session, install the application and publishing packages once:
 
-```bash
-uv run --python 3.12 --with-requirements requirements.txt streamlit run app.py
+```r
+install.packages(c("shiny", "rsconnect"), repos = "https://cloud.r-project.org")
+```
+
+Then run from the repository root:
+
+```r
+shiny::runApp(".")
 ```
 
 ## Publish to Posit Connect from Git
 
-The root `manifest.json` identifies `app.py` as a Streamlit application and uses
-`requirements.txt` for its Python dependencies. The manifest is generated with
-Python 3.12; Connect must have a compatible Python runtime available.
+The root `manifest.json` identifies `app.R` as an R Shiny application and records
+its R package dependencies. The target Connect server provides R 4.6.1.
 
 In [NIMH Posit Connect](https://appshare.nimh.nih.gov/):
 
@@ -36,8 +41,12 @@ for the complete workflow.
 After changing application files, data, or dependencies, regenerate the manifest
 from the repository root:
 
-```bash
-uv run --python 3.12 --with-requirements requirements.txt --with rsconnect-python rsconnect write-manifest streamlit --entrypoint app.py --exclude '.mypy_cache/**' --overwrite .
+```r
+rsconnect::writeManifest(
+  appDir = ".",
+  appFiles = c("app.R", "data/example.csv", "README.md", "LICENSE"),
+  appMode = "shiny"
+)
 ```
 
 Commit and push the changed files together with `manifest.json`. Connect will
